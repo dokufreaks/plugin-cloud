@@ -18,12 +18,12 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
 
   function getInfo(){
     return array(
-      'author' => 'Esther Brunner',
-      'email'  => 'wikidesign@gmail.com',
-      'date'   => '2007-01-16',
+      'author' => 'Gina Häußge, Michael Klier, Esther Brunner',
+      'email'  => 'dokuwiki@chimeric.de',
+      'date'   => '2008-02-11',
       'name'   => 'Cloud Plugin',
       'desc'   => 'displays the most used words in a word cloud',
-      'url'    => 'http://www.wikidesign.ch/en/plugin/cloud/start',
+      'url'    => 'http://wiki.splitbrain.org/plugin:cloud',
     );
   }
 
