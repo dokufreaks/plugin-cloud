@@ -1,12 +1,13 @@
 ====== Cloud Plugin for DokuWiki ======
 
 All documentation for the Cloud Plugin is available online at:
-http://www.wikidesign.ch/en/plugin/cloud/start
 http://wiki.splitbrain.org/plugin:cloud
 
 This plugin requires DokuWiki 2006-11-06 and this helper plugin:
 
-  * Tag Plugin       http://www.wikidesign.ch/en/plugin/tag/start
+  * Tag Plugin       http://wiki.splitbrain.org/plugin:tag
 
 (c) 2005 - 2007 by Esther Brunner <wikidesign@gmail.com>
+(c) 2008 by Gina Häußge, Michael Klier <dokuwiki@chimeric.de>
+
 See COPYING for license info.
