@@ -80,16 +80,20 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         if ($type == 'tag'){
           $id = $word;
           resolve_pageID($tag->namespace, $id, $exists);
-          $link = wl($id);
+          if($exists) {
+            $link = wl($id);
+          } else {
+            $link = wl($id, array('do'=>'backlink'));
+          }
           $title = $id;
           $class .= ($exists ? '_tag1' : '_tag2');
         } else {
           if($conf['userewrite'] == 2) {
-              $link = wl($word, array('do'=>'search', 'id'=>$word));
-              $title = $size;
+            $link = wl($word, array('do'=>'search', 'id'=>$word));
+            $title = $size;
           } else {
-              $link = wl($word, 'do=search');
-              $title = $size;
+            $link = wl($word, 'do=search');
+            $title = $size;
           }
         }
         $renderer->doc .= DOKU_TAB.'<a href="'.$link.'" class="'.$class.'"'.
