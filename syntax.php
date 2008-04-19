@@ -83,7 +83,11 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
           if($exists) {
             $link = wl($id);
           } else {
-            $link = wl($id, array('do'=>'backlink'));
+            if($conf['userewrite'] == 2) {
+              $link = wl($id, array('do'=>'backlink', 'id'=>$id));
+            } else {
+              $link = wl($id, array('do'=>'backlink'));
+            }
           }
           $title = $id;
           $class .= ($exists ? '_tag1' : '_tag2');
