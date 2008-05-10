@@ -20,7 +20,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     return array(
       'author' => 'Gina Häußge, Michael Klier, Esther Brunner',
       'email'  => 'dokuwiki@chimeric.de',
-      'date'   => '2008-04-19',
+      'date'   => '2008-05-10',
       'name'   => 'Cloud Plugin',
       'desc'   => 'displays the most used words in a word cloud',
       'url'    => 'http://wiki.splitbrain.org/plugin:cloud',
@@ -83,11 +83,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
           if($exists) {
             $link = wl($id);
           } else {
-            if($conf['userewrite'] == 2) {
-              $link = wl($id, array('do'=>'backlink', 'id'=>$id));
-            } else {
-              $link = wl($id, array('do'=>'backlink'));
-            }
+            $link = wl($id, array('do'=>'showtag', 'tag'=>noNS($id)));
           }
           $title = $id;
           $class .= ($exists ? '_tag1' : '_tag2');
