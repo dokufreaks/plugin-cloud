@@ -20,7 +20,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         return array(
                 'author' => 'Gina Häußge, Michael Klier, Esther Brunner',
                 'email'  => 'dokuwiki@chimeric.de',
-                'date'   => '2008-05-10',
+                'date'   => '2008-07-10',
                 'name'   => 'Cloud Plugin',
                 'desc'   => 'displays the most used words in a word cloud',
                 'url'    => 'http://wiki.splitbrain.org/plugin:cloud',
@@ -166,7 +166,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
      */
     function _getTagCloud($num, &$min, &$max, &$tag) {
         $cloud = array();
-        foreach ($tag->tag_idx as $key => $value) {
+        foreach ($tag->topic_idx as $key => $value) {
             if (!is_array($value) || empty($value) || (!trim($value[0]))) continue;
             $cloud[$key] = count($value);
         }
