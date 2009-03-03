@@ -167,10 +167,17 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     function _getTagCloud($num, &$min, &$max, &$tag) {
         $cloud = array();
         foreach ($tag->topic_idx as $key => $value) {
-            if (!is_array($value) || empty($value) || (!trim($value[0]))) continue;
-            $cloud[$key] = count($value);
+            if (!is_array($value) || empty($value) || (!trim($value[0]))) {
+                continue;
+            } else {
+                $pages = array();
+                foreach($value as $page) {
+                    if(auth_quickaclcheck($page) < AUTH_READ) continue;
+                    array_push($pages, $page);
+                }
+                if(!empty($pages)) $cloud[$key] = count($pages);
+            }
         }
-
         return $this->_sortCloud($cloud, $num, $min, $max);
     }
 
