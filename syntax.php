@@ -20,7 +20,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         return array(
                 'author' => 'Gina Häußge, Michael Klier, Esther Brunner',
                 'email'  => 'dokuwiki@chimeric.de',
-                'date'   => '2008-07-10',
+                'date'   => @file_get_contents(DOKU_PLUGIN . 'cloud/VERSION'),
                 'name'   => 'Cloud Plugin',
                 'desc'   => 'displays the most used words in a word cloud',
                 'url'    => 'http://wiki.splitbrain.org/plugin:cloud',
