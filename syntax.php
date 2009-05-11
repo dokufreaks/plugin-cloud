@@ -166,6 +166,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
      */
     function _getTagCloud($num, &$min, &$max, &$tag) {
         $cloud = array();
+        if(!is_array($tag->topic_idx)) return;
         foreach ($tag->topic_idx as $key => $value) {
             if (!is_array($value) || empty($value) || (!trim($value[0]))) {
                 continue;
