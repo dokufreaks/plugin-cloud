@@ -77,11 +77,15 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                 elseif ($size < $min+round(8*$delta)) $class = 'cloud4';
                 else $class = 'cloud5';
 
+                $name = $word;
                 if ($type == 'tag') {
                     $id = $word;
                     resolve_pageID($tag->namespace, $id, $exists);
                     if($exists) {
                         $link = wl($id);
+                        if($conf['useheading']) {
+                            $name = p_get_first_heading($id, false);
+                        }
                     } else {
                         $link = wl($id, array('do'=>'showtag', 'tag'=>noNS($id)));
                     }
@@ -96,10 +100,11 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                         $title = $size;
                     }
                 }
-                $renderer->doc .= DOKU_TAB.'<a href="'.$link.'" class="'.$class.'"'.
-                    ' title="'.$title.'">'.$word.'</a>'.DOKU_LF;
+
+                $renderer->doc .= DOKU_TAB . '<a href="' . $link . '" class="' . $class .'"'
+                               .' title="' . $title . '">' . $name . '</a>' . DOKU_LF;
             }
-            $renderer->doc .= '</div>'.DOKU_LF;
+            $renderer->doc .= '</div>' . DOKU_LF;
             return true;
         }
         return false;
