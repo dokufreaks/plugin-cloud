@@ -145,7 +145,6 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
 
             $this->_addWordsToCloud($cloud, $idx, $word_idx, $stopwords);
         }
-
         return $this->_sortCloud($cloud, $num, $min, $max);
     }
 
@@ -191,6 +190,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
      * Sorts and slices the cloud
      */
     function _sortCloud($cloud, $num, &$min, &$max) {
+        if(empty($cloud)) return;
 
         // sort by frequency, then alphabetically
         arsort($cloud);
