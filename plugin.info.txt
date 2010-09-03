@@ -1,0 +1,8 @@
+# General Plugin Info do not edit
+base   cloud
+author Michael Klier, Gina Haeussge
+email  dokuwiki@chimeric.de
+date   2010-01-07
+name   Cloud Plugin
+desc   Displays the most used words in a word cloud.
+url    http://www.dokuwiki.org/plugin:cloud
