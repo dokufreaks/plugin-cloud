@@ -98,11 +98,13 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                         $link = wl($id);
                         if($conf['useheading']) {
                             $name = p_get_first_heading($id, false);
+                        } else {
+                            $name = $word;
                         }
                     } else {
-                        $link = wl($id, array('do'=>'showtag', 'tag'=>noNS($id)));
+                        $link = wl($id, array('do'=>'showtag', 'tag'=>$word));
                     }
-                    $title = $id;
+                    $title = $word;
                     $class .= ($exists ? '_tag1' : '_tag2');
                 } else {
                     if($conf['userewrite'] == 2) {
