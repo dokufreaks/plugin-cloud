@@ -68,7 +68,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
             } elseif($type == 'search') {
                 $helper = plugin_load('helper', 'searchstats');
                 if($helper) {
-                    $cloud = $helper->getSearchWordArray();
+                    $cloud = $helper->getSearchWordArray($num);
                 } else {
                     msg('You have to install the searchstats plugin to use this feature.', -1);
                 }
