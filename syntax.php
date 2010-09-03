@@ -38,6 +38,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     function handle($match, $state, $pos, &$handler) {
         $match = substr($match, 2, -2); // strip markup
         if (substr($match, 0, 3) == 'TAG') $type = 'tag';
+        if (substr($match, 0, 6) == 'SEARCH') $type = 'search';
         else $type = 'word';
 
         list($junk, $num) = explode(':', $match, 2);
@@ -59,6 +60,13 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                     return false;
                 }
                 $cloud = $this->_getTagCloud($num, $min, $max, $tag);
+            } elseif($type == 'search') {
+                $helper = plugin_load('helper', 'searchstats');
+                if($helper) {
+                    $cloud = $helper->getSearchWordArray();
+                } else {
+                    msg('You have to install the searchstats plugin to use this feature.', -1);
+                }
             } else {
                 $cloud = $this->_getWordCloud($num, $min, $max);
             }
