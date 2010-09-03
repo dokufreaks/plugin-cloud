@@ -37,9 +37,14 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
 
     function handle($match, $state, $pos, &$handler) {
         $match = substr($match, 2, -2); // strip markup
-        if (substr($match, 0, 3) == 'TAG') $type = 'tag';
-        if (substr($match, 0, 6) == 'SEARCH') $type = 'search';
-        else $type = 'word';
+
+        if (substr($match, 0, 3) == 'TAG') {
+            $type = 'tag';
+        } elseif (substr($match, 0, 6) == 'SEARCH') {
+            $type = 'search';
+        } else {
+            $type = 'word';
+        }
 
         list($junk, $num) = explode(':', $match, 2);
         if (!is_numeric($num)) $num = 50;
