@@ -8,4 +8,4 @@
 
 $meta['minimum_word_length']    = array('numeric', '_min' => 2);
 
-//Setup VIM: ex: et ts=2 enc=utf-8 :
+//Setup VIM: ex: et ts=2 :

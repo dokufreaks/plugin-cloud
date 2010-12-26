@@ -9,4 +9,4 @@
 // for the configuration manager
 $lang['minimum_word_length']      = 'Minimale Länge der Wörter in der Cloud';
 
-//Setup VIM: ex: et ts=2 enc=utf-8 :
+//Setup VIM: ex: et ts=2 :

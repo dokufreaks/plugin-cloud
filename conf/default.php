@@ -6,4 +6,4 @@
  */
 $conf['minimum_word_length']          = 2;        // Minimum world length of words inside the cloud
 
-//Setup VIM: ex: et ts=2 enc=utf-8 :
+//Setup VIM: ex: et ts=2 :
