@@ -142,10 +142,10 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
 
         $cloud = array();
 
-        if (@file_exists($conf['indexdir'].'/page.idx')) { // new word-lenght based index
+        if (@file_exists($conf['indexdir'].'/page.idx')) { // new word-length based index
             require_once(DOKU_INC.'inc/indexer.php');
 
-            $n = 2; // minimum word length
+            $n = $this->getConf('minimum_word_length'); // minimum word length
             $lengths = idx_indexLengths($n);
             foreach ($lengths as $len) {
                 $idx      = idx_getIndex('i', $len);
