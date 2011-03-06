@@ -47,15 +47,18 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         }
 
         list($junk, $num) = explode(':', $match, 2);
-        if (!is_numeric($num)) $num = 50;
+        list($num, $ns) = explode('>', $num, 2);
 
-        return array($type, $num);
+        if (!is_numeric($num)) $num = 50;
+        if(!is_null($ns)) $namespaces = explode(':', $ns);
+
+        return array($type, $num, $namespaces);
     }            
 
     function render($mode, &$renderer, $data) {
         global $conf;
 
-        list($type, $num) = $data;
+        list($type, $num, $namespaces) = $data;
 
         if ($mode == 'xhtml') {
 
@@ -64,7 +67,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                     msg('The Tag Plugin must be installed to display tag clouds.', -1);
                     return false;
                 }
-                $cloud = $this->_getTagCloud($num, $min, $max, $tag);
+                $cloud = $this->_getTagCloud($num, $min, $max, $namespaces, $tag);
             } elseif($type == 'search') {
                 $helper = plugin_load('helper', 'searchstats');
                 if($helper) {
@@ -183,10 +186,20 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     /**
      * Returns the sorted tag cloud array
      */
-    function _getTagCloud($num, &$min, &$max, &$tag) {
+    function _getTagCloud($num, &$min, &$max, $namespaces = NULL, &$tag) {
         $cloud = array();
+        
         if(!is_array($tag->topic_idx)) return;
+
         foreach ($tag->topic_idx as $key => $value) {
+            // check if page is in wanted namespace and (explicit check for root namespace, specified with a dot)
+            // condition: ( (no ns given) && ( (page not in given namespace) or (page not in root namespace) )
+            if( !is_null($namespaces) && ( (!is_null($namespaces) && !in_array(getNS($value[0]), $namespaces) ) ||
+              ( !(getNS($value[0])) && !in_array('.', $namespaces) )  ) ) {
+                // discard tag page if namespace of page isn't desired
+                continue;
+            }
+
             if (!is_array($value) || empty($value) || (!trim($value[0]))) {
                 continue;
             } else {
@@ -217,4 +230,4 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         return $cloud[0];
     }
 }
-// vim:ts=4:sw=4:et:enc=utf-8: 
+// vim:ts=4:sw=4:et: 
