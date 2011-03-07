@@ -8,5 +8,6 @@
  
 // for the configuration manager
 $lang['minimum_word_length']      = 'Minimale Länge der Wörter in der Cloud';
+$lang['tag_blacklist']            = 'Specify tags which shouldn\'t appear on pages (comma separated)';
 
 //Setup VIM: ex: et ts=2 :

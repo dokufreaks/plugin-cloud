@@ -192,6 +192,14 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         if(!is_array($tag->topic_idx)) return;
 
         foreach ($tag->topic_idx as $key => $value) {
+        	// discard tags which are listed in the blacklist
+        	$blacklist = $this->getConf('tag_blacklist');
+        	if(!empty($blacklist)) {
+        		 $blacklist = explode(',', $blacklist);
+        		 $blacklist = str_replace(' ', '', $blacklist);	// remove spaces
+        	}
+        	if(!empty($blacklist) && in_array($key, $blacklist))	continue;		
+        	
             // check if page is in wanted namespace and (explicit check for root namespace, specified with a dot)
             // condition: ( (no ns given) && ( (page not in given namespace) or (page not in root namespace) )
             if( !is_null($namespaces) && ( (!is_null($namespaces) && !in_array(getNS($value[0]), $namespaces) ) ||
