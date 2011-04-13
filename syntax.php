@@ -50,8 +50,8 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         list($num, $ns) = explode('>', $num, 2);
 
         if (!is_numeric($num)) $num = 50;
-        if(!is_null($ns)) $namespaces = explode(':', $ns);
-
+        if(!is_null($ns)) $namespaces = explode('|', $ns);
+        
         return array($type, $num, $namespaces);
     }            
 
@@ -198,15 +198,14 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         		 $blacklist = explode(',', $blacklist);
         		 $blacklist = str_replace(' ', '', $blacklist);	// remove spaces
         	}
-        	if(!empty($blacklist) && in_array($key, $blacklist))	continue;		
-        	
+        	if(!empty($blacklist) && in_array($key, $blacklist))	continue;
+
             // check if page is in wanted namespace and (explicit check for root namespace, specified with a dot)
-            // condition: ( (no ns given) && ( (page not in given namespace) or (page not in root namespace) )
-            if( !is_null($namespaces) && ( (!is_null($namespaces) && !in_array(getNS($value[0]), $namespaces) ) ||
-              ( !(getNS($value[0])) && !in_array('.', $namespaces) )  ) ) {
-                // discard tag page if namespace of page isn't desired
-                continue;
-            }
+            // condition: ( (no ns given) && ( (page not in given namespace and page is not in rootns) )
+            if( !is_null($namespaces) && ((!is_null($namespaces) && !in_array(getNS($value[0]), $namespaces) && getNS($value[0]) )) ) continue;
+            
+            // page not in root namespace
+            if( !is_null($namespaces) && (!(getNS($value[0])) && !in_array('.', $namespaces)) ) continue;
 
             if (!is_array($value) || empty($value) || (!trim($value[0]))) {
                 continue;
