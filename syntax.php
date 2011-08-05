@@ -46,8 +46,8 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
             $type = 'word';
         }
 
-        list($junk, $num) = explode(':', $match, 2);
-        list($num, $ns) = explode('>', $num, 2);
+        list($num, $ns) = explode('>', $match, 2);
+        list($junk, $num) = explode(':', $num, 2);
 
         if (!is_numeric($num)) $num = 50;
         if(!is_null($ns)) $namespaces = explode('|', $ns);
@@ -192,13 +192,13 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         if(!is_array($tag->topic_idx)) return;
 
         foreach ($tag->topic_idx as $key => $value) {
-        	// discard tags which are listed in the blacklist
-        	$blacklist = $this->getConf('tag_blacklist');
-        	if(!empty($blacklist)) {
-        		 $blacklist = explode(',', $blacklist);
-        		 $blacklist = str_replace(' ', '', $blacklist);	// remove spaces
-        	}
-        	if(!empty($blacklist) && in_array($key, $blacklist))	continue;
+            // discard tags which are listed in the blacklist
+            $blacklist = $this->getConf('tag_blacklist');
+            if(!empty($blacklist)) {
+                     $blacklist = explode(',', $blacklist);
+                     $blacklist = str_replace(' ', '', $blacklist);	// remove spaces
+            }
+            if(!empty($blacklist) && in_array($key, $blacklist))	continue;
 
             // check if page is in wanted namespace and (explicit check for root namespace, specified with a dot)
             // condition: ( (no ns given) && ( (page not in given namespace and page is not in rootns) )
