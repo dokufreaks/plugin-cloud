@@ -3,11 +3,12 @@
  * German language file
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Matthias Schulte <mailinglist@lupo49.de>
+ * @author     Matthias Schulte <dokuwiki@lupo49.de>
  */
  
 // for the configuration manager
 $lang['minimum_word_length']      = 'Minimale Länge der Wörter in der Cloud';
-$lang['tag_blacklist']            = 'Specify tags which shouldn\'t appear on pages (comma separated)';
+$lang['tag_blacklist']            = 'Tags angeben, die nicht angezeigt werden sollen (getrennt durch Komma)';
+$lang['list_tags_of_subns']       = 'Tags anzeigen, die in Subnamespaces von angegebeben Namespaces liegen';
 
 //Setup VIM: ex: et ts=2 :

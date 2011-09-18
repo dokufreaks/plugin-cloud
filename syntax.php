@@ -188,7 +188,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
      */
     function _getTagCloud($num, &$min, &$max, $namespaces = NULL, &$tag) {
         $cloud = array();
-        
+
         if(!is_array($tag->topic_idx)) return;
 
         foreach ($tag->topic_idx as $key => $value) {
@@ -201,8 +201,15 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
             if(!empty($blacklist) && in_array($key, $blacklist))	continue;
 
             // check if page is in wanted namespace and (explicit check for root namespace, specified with a dot)
-            // condition: ( (no ns given) && ( (page not in given namespace and page is not in rootns) )
-            if( !is_null($namespaces) && ((!is_null($namespaces) && !in_array(getNS($value[0]), $namespaces) && getNS($value[0]) )) ) continue;
+            // display tags which are inside a subnamespace of a given namespace
+            if(!is_null($namespaces) && $this->getConf('list_tags_of_subns')) {
+                foreach($namespaces as $ns) {
+                    if((getNS($value[0]) != false) && strpos(getNS($value[0]), $ns) === false ) continue;
+                }
+            } else {
+                // condition: ( (no ns given) && ( (page not in given namespace and page is not in rootns) )
+                if( !is_null($namespaces) && ((!is_null($namespaces) && !in_array(getNS($value[0]), $namespaces) && getNS($value[0]) )) ) continue;   
+            }
             
             // page not in root namespace
             if( !is_null($namespaces) && (!(getNS($value[0])) && !in_array('.', $namespaces)) ) continue;
