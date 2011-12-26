@@ -175,7 +175,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         // collect the frequency of the words
         for ($i = 0; $i < $wcount; $i++) {
             $key = trim($word_idx[$i]);
-            if (!is_int(array_search("$key\n", $stopwords))) {
+            if (!is_int(array_search($key, $stopwords))) {
                 $value = explode(':', $idx[$i]);
                 if (!trim($value[0])) continue;
                 $cloud[$key] = count($value);
