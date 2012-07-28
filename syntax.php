@@ -120,7 +120,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                 }
 
                 $renderer->doc .= DOKU_TAB . '<a href="' . $link . '" class="' . $class .'"'
-                               .' title="' . $title . '">' . $name . '</a>' . DOKU_LF;
+                               .' title="' . $title . '">' . hsc($name) . '</a>' . DOKU_LF;
             }
             $renderer->doc .= '</div>' . DOKU_LF;
             return true;
