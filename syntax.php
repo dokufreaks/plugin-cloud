@@ -176,44 +176,19 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
      * Returns the sorted tag cloud array
      */
     function _getTagCloud($num, &$min, &$max, $namespaces = NULL, &$tag) {
-        $cloud = array();
+        $cloud = $tag->tagOccurrences(NULL, $namespaces, true, $this->getConf('list_tags_of_subns'));
 
-        if(!is_array($tag->topic_idx)) return;
+        $blacklist = $this->getConf('tag_blacklist');
+        if(!empty($blacklist)) {
+            $blacklist = explode(',', $blacklist);
+            $blacklist = str_replace(' ', '', $blacklist);	// remove spaces
 
-        foreach ($tag->topic_idx as $key => $value) {
-            // discard tags which are listed in the blacklist
-            $blacklist = $this->getConf('tag_blacklist');
-            if(!empty($blacklist)) {
-                     $blacklist = explode(',', $blacklist);
-                     $blacklist = str_replace(' ', '', $blacklist);	// remove spaces
-            }
-            if(!empty($blacklist) && in_array($key, $blacklist))	continue;
-
-            // check if page is in wanted namespace and (explicit check for root namespace, specified with a dot)
-            // display tags which are inside a subnamespace of a given namespace
-            if(!is_null($namespaces) && $this->getConf('list_tags_of_subns')) {
-                foreach($namespaces as $ns) {
-                    if((getNS($value[0]) != false) && strpos(getNS($value[0]), $ns) === false ) continue;
-                }
-            } else {
-                // condition: ( (no ns given) && ( (page not in given namespace and page is not in rootns) )
-                if( !is_null($namespaces) && ((!is_null($namespaces) && !in_array(getNS($value[0]), $namespaces) && getNS($value[0]) )) ) continue;   
-            }
-            
-            // page not in root namespace
-            if( !is_null($namespaces) && (!(getNS($value[0])) && !in_array('.', $namespaces)) ) continue;
-
-            if (!is_array($value) || empty($value) || (!trim($value[0]))) {
-                continue;
-            } else {
-                $pages = array();
-                foreach($value as $page) {
-                    if(auth_quickaclcheck($page) < AUTH_READ) continue;
-                    array_push($pages, $page);
-                }
-                if(!empty($pages)) $cloud[$key] = count($pages);
+            foreach ($blacklist as $tag) {
+                if (isset($cloud[$tag]))
+                    unset($cloud[$tag]);
             }
         }
+
         return $this->_sortCloud($cloud, $num, $min, $max);
     }
 
