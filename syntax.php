@@ -74,7 +74,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
             $renderer->info['cache'] = false;
 
             // and render the cloud
-            $renderer->doc .= '<div id="cloud">'.DOKU_LF;
+            $renderer->doc .= '<div class="cloud">'.DOKU_LF;
             foreach ($cloud as $word => $size) {
                 if ($size < $min+round($delta)) $class = 'cloud1';
                 elseif ($size < $min+round(2*$delta)) $class = 'cloud2';
