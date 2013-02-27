@@ -61,8 +61,16 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                 $helper = plugin_load('helper', 'searchstats');
                 if($helper) {
                     $cloud = $helper->getSearchWordArray($num);
+                    // calculate min/max values
+                    $min = PHP_INT_MAX;
+                    $max = 0;
+                    foreach ($cloud as $size) {
+                        $min = min($size, $min);
+                        $max = max($size, $max);
+                    }
                 } else {
                     msg('You have to install the searchstats plugin to use this feature.', -1);
+                    return false;
                 }
             } else {
                 $cloud = $this->_getWordCloud($num, $min, $max);
@@ -85,6 +93,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                 $name = $word;
                 if ($type == 'tag') {
                     $id = $word;
+                    $exists = false;
                     resolve_pageID($tag->namespace, $id, $exists);
                     if($exists) {
                         $link = wl($id);
