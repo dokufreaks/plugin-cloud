@@ -134,12 +134,12 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
 
         // load stopwords
         $swfile   = DOKU_INC.'inc/lang/'.$conf['lang'].'/stopwords.txt';
-        if (@file_exists($swfile)) $stopwords = file($swfile);
+        if (@file_exists($swfile)) $stopwords = file($swfile, FILE_IGNORE_NEW_LINES);
         else $stopwords = array();
 
         // load extra local stopwords
         $swfile = DOKU_CONF.'stopwords.txt';
-        if (@file_exists($swfile)) $stopwords = array_merge($stopwords, file($swfile));
+        if (@file_exists($swfile)) $stopwords = array_merge($stopwords, file($swfile, FILE_IGNORE_NEW_LINES));
 
         $cloud = array();
 
