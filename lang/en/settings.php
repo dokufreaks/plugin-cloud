@@ -1,9 +1,14 @@
 <?php
-
 /**
+ * English language file
+ *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * 
  * @author     Matthias Schulte <dokuwiki@lupo49.de>
- * @author Ralph Lauren Outlet Online <zgtldple@hotmail.com>
  */
-$lang['minimum_word_length']   = 'He says he went to a Veterans Affairs hospital and was told to not be concerned about it. Ralph Lauren Outlet Online http://jonanddale.com/about.asp';
+ 
+// for the configuration manager
+$lang['minimum_word_length']      = 'Minimum word-length for words in the cloud';
+$lang['tag_blacklist']            = 'Tags, which shouldn\'t be displayed on pages (Comma seperated)';
+$lang['list_tags_of_subns']       = 'List also tags in subnamespaces of a specified namespace';
+
+//Setup VIM: ex: et ts=2 :
