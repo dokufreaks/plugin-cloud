@@ -99,9 +99,10 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                         $link = wl($id);
                         if($conf['useheading']) {
                             $name = p_get_first_heading($id, false);
-                        } else {
-                            $name = $word;
-                        }
+                            if (empty($name)) {
+                                $name = $word;
+                            }
+			}
                     } else {
                         $link = wl($id, array('do'=>'showtag', 'tag'=>$word));
                     }
