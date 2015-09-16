@@ -8,6 +8,7 @@
  
 // for the configuration manager
 $lang['minimum_word_length']      = 'Minimale Länge der Wörter in der Cloud';
+$lang['word_blacklist']           = 'Wort angeben, die nicht angezeigt werden sollen (getrennt durch Komma)';
 $lang['tag_blacklist']            = 'Tags angeben, die nicht angezeigt werden sollen (getrennt durch Komma)';
 $lang['list_tags_of_subns']       = 'Tags anzeigen, die in Subnamespaces von angegebeben Namespaces liegen';
 

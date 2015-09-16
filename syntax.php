@@ -102,7 +102,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                             if (empty($name)) {
                                 $name = $word;
                             }
-			}
+                        }
                     } else {
                         $link = wl($id, array('do'=>'showtag', 'tag'=>$word));
                     }
@@ -125,6 +125,22 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Removes all words in configured blacklist $balcklistName from $cloud array
+     */
+    function _removeFromCloud(&$cloud, $balcklistName) {
+        $blacklist = $this->getConf($balcklistName);
+        if(!empty($blacklist)) {
+            $blacklist = explode(',', $blacklist);
+            $blacklist = str_replace(' ', '', $blacklist);	// remove spaces
+
+            foreach ($blacklist as $word) {
+                if (isset($cloud[$word]))
+                    unset($cloud[$word]);
+            }
+        }
     }
 
     /**
@@ -162,6 +178,9 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
 
             $this->_addWordsToCloud($cloud, $idx, $word_idx, $stopwords);
         }
+
+        $this->_removeFromCloud($cloud, 'word_blacklist');
+
         return $this->_sortCloud($cloud, $num, $min, $max);
     }
 
@@ -188,16 +207,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     function _getTagCloud($num, &$min, &$max, $namespaces = NULL, &$tag) {
         $cloud = $tag->tagOccurrences(NULL, $namespaces, true, $this->getConf('list_tags_of_subns'));
 
-        $blacklist = $this->getConf('tag_blacklist');
-        if(!empty($blacklist)) {
-            $blacklist = explode(',', $blacklist);
-            $blacklist = str_replace(' ', '', $blacklist);	// remove spaces
-
-            foreach ($blacklist as $tag) {
-                if (isset($cloud[$tag]))
-                    unset($cloud[$tag]);
-            }
-        }
+        $this->_removeFromCloud($cloud, 'tag_blacklist');
 
         return $this->_sortCloud($cloud, $num, $min, $max);
     }
