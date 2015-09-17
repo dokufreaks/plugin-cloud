@@ -61,6 +61,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                 $helper = plugin_load('helper', 'searchstats');
                 if($helper) {
                     $cloud = $helper->getSearchWordArray($num);
+                    $this->_removeFromCloud($cloud, 'search_blacklist');
                     // calculate min/max values
                     $min = PHP_INT_MAX;
                     $max = 0;
