@@ -24,7 +24,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         $this->Lexer->addSpecialPattern('~~\w*?CLOUD.*?~~', $mode, 'plugin_cloud');
     }
 
-    function handle($match, $state, $pos, &$handler) {
+    function handle($match, $state, $pos, Doku_Handler $handler) {
         $match = substr($match, 2, -2); // strip markup
 
         if (substr($match, 0, 3) == 'TAG') {
@@ -44,7 +44,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         return array($type, $num, $namespaces);
     }            
 
-    function render($mode, &$renderer, $data) {
+    function render($mode, Doku_Renderer $renderer, $data) {
         global $conf;
 
         list($type, $num, $namespaces) = $data;
