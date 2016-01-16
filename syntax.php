@@ -40,6 +40,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
 
         if (!is_numeric($num)) $num = 50;
         if(!is_null($ns)) $namespaces = explode('|', $ns);
+        else $namespaces = null;
         
         return array($type, $num, $namespaces);
     }            
@@ -52,12 +53,14 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         if ($mode == 'xhtml') {
 
             if ($type == 'tag') { // we need the tag helper plugin
+                /** @var helper_plugin_tag $tag */
                 if (plugin_isdisabled('tag') || (!$tag = plugin_load('helper', 'tag'))) {
                     msg('The Tag Plugin must be installed to display tag clouds.', -1);
                     return false;
                 }
                 $cloud = $this->_getTagCloud($num, $min, $max, $namespaces, $tag);
             } elseif($type == 'search') {
+                /** @var helper_plugin_searchstats $helper */
                 $helper = plugin_load('helper', 'searchstats');
                 if($helper) {
                     $cloud = $helper->getSearchWordArray($num);
@@ -91,7 +94,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                 else $class = 'cloud5';
 
                 $name = $word;
-                if ($type == 'tag') {
+                if ($type == 'tag' && isset($tag)) {
                     $id = $word;
                     $exists = false;
                     resolve_pageID($tag->namespace, $id, $exists);
@@ -185,7 +188,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     /**
      * Returns the sorted tag cloud array
      */
-    function _getTagCloud($num, &$min, &$max, $namespaces = NULL, &$tag) {
+    function _getTagCloud($num, &$min, &$max, $namespaces = NULL, helper_plugin_tag &$tag) {
         $cloud = $tag->tagOccurrences(NULL, $namespaces, true, $this->getConf('list_tags_of_subns'));
 
         $blacklist = $this->getConf('tag_blacklist');
@@ -206,7 +209,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
      * Sorts and slices the cloud
      */
     function _sortCloud($cloud, $num, &$min, &$max) {
-        if(empty($cloud)) return;
+        if(empty($cloud)) return $cloud;
 
         // sort by frequency, then alphabetically
         arsort($cloud);
