@@ -50,12 +50,12 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
 
         list($type, $num, $namespaces) = $data;
 
-        if ($mode == 'xhtml') {
+        if ($mode == 'xhtml' || $mode == 'odt') {
 
             if ($type == 'tag') { // we need the tag helper plugin
                 /** @var helper_plugin_tag $tag */
                 if (plugin_isdisabled('tag') || (!$tag = plugin_load('helper', 'tag'))) {
-                    msg('The Tag Plugin must be installed to display tag clouds.', -1);
+                    $this->msg($mode, $renderer, 'The Tag Plugin must be installed to display tag clouds.', -1);
                     return false;
                 }
                 $cloud = $this->_getTagCloud($num, $min, $max, $namespaces, $tag);
@@ -72,7 +72,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                         $max = max($size, $max);
                     }
                 } else {
-                    msg('You have to install the searchstats plugin to use this feature.', -1);
+                    $this->msg($mode, $renderer, 'You have to install the searchstats plugin to use this feature.', -1);
                     return false;
                 }
             } else {
@@ -85,7 +85,11 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
             $renderer->info['cache'] = false;
 
             // and render the cloud
-            $renderer->doc .= '<div class="cloud">'.DOKU_LF;
+            if ($mode == 'odt') {
+                $this->open_odt_paragraph($renderer);
+            } else {
+                $renderer->doc .= '<div class="cloud">'.DOKU_LF;
+            }
             foreach ($cloud as $word => $size) {
                 if ($size < $min+round($delta)) $class = 'cloud1';
                 elseif ($size < $min+round(2*$delta)) $class = 'cloud2';
@@ -105,7 +109,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                             if (empty($name)) {
                                 $name = $word;
                             }
-			}
+                        }
                     } else {
                         $link = wl($id, array('do'=>'showtag', 'tag'=>$word));
                     }
@@ -121,10 +125,19 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                     }
                 }
 
-                $renderer->doc .= DOKU_TAB . '<a href="' . $link . '" class="' . $class .'"'
-                               .' title="' . $title . '">' . hsc($name) . '</a>' . DOKU_LF;
+                $name = hsc($name);
+                if ($mode == 'odt') {
+                    $this->render_odt_link ($link, $name, $class, $renderer);
+                } else {
+                    $renderer->doc .= DOKU_TAB . '<a href="' . $link . '" class="' . $class .'"'
+                                   .' title="' . $title . '">' . $name . '</a>' . DOKU_LF;
+                }
             }
-            $renderer->doc .= '</div>' . DOKU_LF;
+            if ($mode == 'odt') {
+                $renderer->p_close();
+            } else {
+                $renderer->doc .= '</div>' . DOKU_LF;
+            }
             return true;
         }
         return false;
@@ -219,6 +232,86 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         ksort($cloud[0]);
 
         return $cloud[0];
+    }
+
+    /**
+     * Helper function treating messages for different renderers.
+     *
+     * @param $renderer the renderer to use
+     * @param $msg the msg
+     * @param $msg the msg
+     * @return void
+     */
+    protected function msg($mode, Doku_Renderer $renderer, $message, $lvl=0) {
+        switch ($format) {
+            case 'odt':
+                $renderer->doc .= $message;
+                break;
+            default:
+                msg($message, $lvl);
+                break;
+        }
+    }
+
+    /**
+     * Open an ODT paragraph with our CSS properties.
+     *
+     * @param $renderer the renderer to use
+     * @return void
+     */
+    protected function open_odt_paragraph (Doku_Renderer $renderer) {
+        $renderer->p_close();
+        if ( method_exists ($renderer, 'getODTProperties') === true ) {
+            $properties = array ();
+
+            // Get CSS properties for ODT export.
+            $renderer->getODTProperties ($properties, 'p', 'dokuwiki cloud', NULL, 'print');
+
+            // Insert image if present for that media class.
+            if ( empty($properties ['background-image']) === false ) {
+                $properties ['background-image'] =
+                    $renderer->replaceURLPrefix ($properties ['background-image'], DOKU_INC);
+            }
+
+            $renderer->_odtParagraphOpenUseProperties($properties);
+        } else {
+            // Older ODT plugin version
+            $renderer->p_open();
+        }
+    }
+
+    /**
+     * Renders a link for odt mode.
+     * Actually no link is created, just a text span.
+     *
+     * @param $url the URL for the link
+     * @param $name the name for the link
+     * @param $class the class for the link
+     * @param $renderer the renderer to use
+     * @return void
+     */
+    protected function render_odt_link ($url, $name, $class, Doku_Renderer $renderer) {
+        if ( method_exists ($renderer, 'getODTProperties') === true ) {
+            $properties = array ();
+
+            // Get CSS properties for ODT export.
+            $renderer->getODTProperties ($properties, 'a', 'dokuwiki '.$class, NULL, 'print');
+
+            // Insert image if present for that media class.
+            if ( empty($properties ['background-image']) === false ) {
+                $properties ['background-image'] =
+                    $renderer->replaceURLPrefix ($properties ['background-image'], DOKU_INC);
+                $renderer->_odtAddImage ($properties ['background-image']);
+            }
+
+            // Render link as simple text span for now, no linking.
+            $renderer->_odtSpanOpenUseProperties($properties);
+            $renderer->doc .= ' '.$name.' ';
+            $renderer->_odtSpanClose();
+        } else {
+            // Old ODT version, just render plain text.
+            $renderer->doc .= ' '.$name.' ';
+        }
     }
 }
 // vim:ts=4:sw=4:et: 
