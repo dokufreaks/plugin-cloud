@@ -105,7 +105,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                             if (empty($name)) {
                                 $name = $word;
                             }
-			}
+                        }
                     } else {
                         $link = wl($id, array('do'=>'showtag', 'tag'=>$word));
                     }
