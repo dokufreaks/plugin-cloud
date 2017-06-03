@@ -1,0 +1,37 @@
+/* Size factor. */
+@sF: 1;
+
+.dokuwiki div.cloud { margin-bottom: 1em; line-height: 145% * @sF; }
+
+.dokuwiki div.cloud a { padding: 0; margin: 0 0.5ex; }
+
+@l: 10%; /* Percentage to lighten the original color. */
+@d: 15%; /* Percentage to desaturate the original color. */
+
+/* Font sizes from largest to smallest font. */
+@f5: 130% * @sF;
+@f4: 115% * @sF;
+@f3: 100% * @sF;
+@f2: 85%  * @sF;
+@f1: 70%  * @sF;
+
+@c0: #003F9E;
+.dokuwiki div.cloud a.cloud1 { font-size: @f1; color: desaturate(lighten(@c0, 4 * @l), 4 * @d); }
+.dokuwiki div.cloud a.cloud2 { font-size: @f2; color: desaturate(lighten(@c0, 3 * @l), 3 * @d); }
+.dokuwiki div.cloud a.cloud3 { font-size: @f3; color: desaturate(lighten(@c0, 2 * @l), 2 * @d); }
+.dokuwiki div.cloud a.cloud4 { font-size: @f4; color: desaturate(lighten(@c0, 1 * @l), 1 * @d); }
+.dokuwiki div.cloud a.cloud5 { font-size: @f5; color: @c0; }
+
+@c1: #009E08;
+.dokuwiki div.cloud a.cloud1_tag1 { font-size: @f1; color: desaturate(lighten(@c1, 4 * @l), 4 * @d); }
+.dokuwiki div.cloud a.cloud2_tag1 { font-size: @f2; color: desaturate(lighten(@c1, 3 * @l), 3 * @d); }
+.dokuwiki div.cloud a.cloud3_tag1 { font-size: @f3; color: desaturate(lighten(@c1, 2 * @l), 2 * @d); }
+.dokuwiki div.cloud a.cloud4_tag1 { font-size: @f4; color: desaturate(lighten(@c1, 1 * @l), 1 * @d); }
+.dokuwiki div.cloud a.cloud5_tag1 { font-size: @f5; color: @c1; }
+
+@c2: #9E0028;
+.dokuwiki div.cloud a.cloud1_tag2 { font-size: @f1; color: desaturate(lighten(@c2, 4 * @l), 4 * @d); }
+.dokuwiki div.cloud a.cloud2_tag2 { font-size: @f2; color: desaturate(lighten(@c2, 3 * @l), 3 * @d); }
+.dokuwiki div.cloud a.cloud3_tag2 { font-size: @f3; color: desaturate(lighten(@c2, 2 * @l), 2 * @d); }
+.dokuwiki div.cloud a.cloud4_tag2 { font-size: @f4; color: desaturate(lighten(@c2, 1 * @l), 1 * @d); }
+.dokuwiki div.cloud a.cloud5_tag2 { font-size: @f5; color: @c2; }
