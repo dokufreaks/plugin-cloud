@@ -140,7 +140,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         // Remove to short words
         $min = $this->getConf('minimum_word_length');
         foreach ($cloud as $key => $count) {
-            if (strlen($key) < $min)
+            if (iconv_strlen($key) < $min)
                 unset($cloud[$key]);
         }
 
