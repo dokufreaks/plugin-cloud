@@ -64,7 +64,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                 $helper = plugin_load('helper', 'searchstats');
                 if($helper) {
                     $cloud = $helper->getSearchWordArray($num);
-                    $this->_removeFromCloud($cloud, 'search_blacklist');
+                    $this->_filterCloud($cloud, 'search_blacklist');
                     // calculate min/max values
                     $min = PHP_INT_MAX;
                     $max = 0;
@@ -132,9 +132,19 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     }
 
     /**
-     * Removes all words in configured blacklist $balcklistName from $cloud array
+     * Applies filters on the cloud:
+     * - removes all short words, see config option 'minimum_word_length'
+     * - removes all words in configured blacklist $balcklistName from $cloud array
      */
-    function _removeFromCloud(&$cloud, $balcklistName) {
+    function _filterCloud(&$cloud, $balcklistName) {
+        // Remove to short words
+        $min = $this->getConf('minimum_word_length');
+        foreach ($cloud as $key => $count) {
+            if (strlen($key) < $min)
+                unset($cloud[$key]);
+        }
+
+        // Remove word which are on the blacklist
         $blacklist = $this->getConf($balcklistName);
         if(!empty($blacklist)) {
             $blacklist = explode(',', $blacklist);
@@ -167,8 +177,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         if (@file_exists($conf['indexdir'].'/page.idx')) { // new word-length based index
             require_once(DOKU_INC.'inc/indexer.php');
 
-            $n = $this->getConf('minimum_word_length'); // minimum word length
-            $lengths = idx_indexLengths($n);
+            $lengths = idx_indexLengths(0);
             foreach ($lengths as $len) {
                 $idx      = idx_getIndex('i', $len);
                 $word_idx = idx_getIndex('w', $len);
@@ -183,7 +192,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
             $this->_addWordsToCloud($cloud, $idx, $word_idx, $stopwords);
         }
 
-        $this->_removeFromCloud($cloud, 'word_blacklist');
+        $this->_filterCloud($cloud, 'word_blacklist');
 
         return $this->_sortCloud($cloud, $num, $min, $max);
     }
@@ -211,7 +220,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     function _getTagCloud($num, &$min, &$max, $namespaces = NULL, helper_plugin_tag &$tag) {
         $cloud = $tag->tagOccurrences(NULL, $namespaces, true, $this->getConf('list_tags_of_subns'));
 
-        $this->_removeFromCloud($cloud, 'tag_blacklist');
+        $this->_filterCloud($cloud, 'tag_blacklist');
 
         return $this->_sortCloud($cloud, $num, $min, $max);
     }
