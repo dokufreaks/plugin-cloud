@@ -15,6 +15,7 @@ if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
 require_once(DOKU_PLUGIN.'syntax.php');
 
 class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
+    protected $knownFlags = array('showCount');
 
     function getType() { return 'substition'; }
     function getPType() { return 'block'; }
@@ -37,19 +38,31 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
 
         list($num, $ns) = explode('>', $match, 2);
         list($junk, $num) = explode(':', $num, 2);
+        $flags = null;
+        if (preg_match ('/\[.*\]/', $junk, $flags) === 1) {
+            $flags = trim ($flags [0], '[]');
+            $found = explode(',', $flags);
+            $flags = array();
+            foreach ($found as $flag) {
+                if (in_array($flag, $this->knownFlags)) {
+                    // Actually we just set flags as present
+                    // Later we might add values to flags like key=value pairs
+                    $flags [$flag] = true;
+                }
+            }
+        }
 
         if (!is_numeric($num)) $num = 50;
         if(!is_null($ns)) $namespaces = explode('|', $ns);
         else $namespaces = null;
         
-        return array($type, $num, $namespaces);
+        return array($type, $num, $namespaces, $flags);
     }            
 
     function render($mode, Doku_Renderer $renderer, $data) {
         global $conf;
 
-        list($type, $num, $namespaces) = $data;
-
+        list($type, $num, $namespaces, $flags) = $data;
         if ($mode == 'xhtml') {
 
             if ($type == 'tag') { // we need the tag helper plugin
@@ -122,6 +135,9 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                     }
                 }
 
+                if ($flags ['showCount'] === true) {
+                    $name .= '('.$size.')';
+                }
                 $renderer->doc .= DOKU_TAB . '<a href="' . $link . '" class="' . $class .'"'
                                .' title="' . $title . '">' . hsc($name) . '</a>' . DOKU_LF;
             }
