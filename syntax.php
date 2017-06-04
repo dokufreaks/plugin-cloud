@@ -16,6 +16,14 @@ require_once(DOKU_PLUGIN.'syntax.php');
 
 class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     protected $knownFlags = array('showCount');
+    protected $stopwords = null;
+
+    /**
+     * Constructor. Loads stopwords.
+     */
+    public function __construct() {
+        $this->stopwords = $this->_getStopwords();
+    }
 
     function getType() { return 'substition'; }
     function getPType() { return 'block'; }
@@ -148,6 +156,32 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     }
 
     /**
+     * Helper function for loading and returning the array with stopwords.
+     * 
+     * Stopwords files are loaded from two locations:
+     * - inc/lang/"actual language"/stopwords.txt
+     * - conf/stopwords.txt
+     * 
+     * If both files exists, then both files are used - the content is merged.
+     */
+    protected function _getStopwords() {
+        // load stopwords
+        $swfile   = DOKU_INC.'inc/lang/'.$conf['lang'].'/stopwords.txt';
+        if (@file_exists($swfile)) $stopwords = file($swfile, FILE_IGNORE_NEW_LINES);
+        else $stopwords = array();
+
+        // load extra local stopwords
+        $swfile = DOKU_CONF.'stopwords.txt';
+        if (@file_exists($swfile)) $stopwords = array_merge($stopwords, file($swfile, FILE_IGNORE_NEW_LINES));
+        
+        if (count($stopwords) == 0) {
+            return null;
+        }
+
+        return $stopwords;
+    }
+
+    /**
      * Applies filters on the cloud:
      * - removes all short words, see config option 'minimum_word_length'
      * - removes all words in configured blacklist $balcklistName from $cloud array
@@ -158,6 +192,12 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         foreach ($cloud as $key => $count) {
             if (iconv_strlen($key) < $min)
                 unset($cloud[$key]);
+        }
+
+        // Remove stopwords
+        foreach ($this->stopwords as $word) {
+            if (isset($cloud[$word]))
+                unset($cloud[$word]);
         }
 
         // Remove word which are on the blacklist
@@ -179,15 +219,6 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     function _getWordCloud($num, &$min, &$max) {
         global $conf;
 
-        // load stopwords
-        $swfile   = DOKU_INC.'inc/lang/'.$conf['lang'].'/stopwords.txt';
-        if (@file_exists($swfile)) $stopwords = file($swfile, FILE_IGNORE_NEW_LINES);
-        else $stopwords = array();
-
-        // load extra local stopwords
-        $swfile = DOKU_CONF.'stopwords.txt';
-        if (@file_exists($swfile)) $stopwords = array_merge($stopwords, file($swfile, FILE_IGNORE_NEW_LINES));
-
         $cloud = array();
 
         if (@file_exists($conf['indexdir'].'/page.idx')) { // new word-length based index
@@ -198,14 +229,14 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                 $idx      = idx_getIndex('i', $len);
                 $word_idx = idx_getIndex('w', $len);
 
-                $this->_addWordsToCloud($cloud, $idx, $word_idx, $stopwords);
+                $this->_addWordsToCloud($cloud, $idx, $word_idx);
             }
 
         } else {                                          // old index
             $idx      = file($conf['cachedir'].'/index.idx');
             $word_idx = file($conf['cachedir'].'/word.idx');
 
-            $this->_addWordsToCloud($cloud, $idx, $word_idx, $stopwords);
+            $this->_addWordsToCloud($cloud, $idx, $word_idx);
         }
 
         $this->_filterCloud($cloud, 'word_blacklist');
@@ -216,17 +247,15 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     /**
      * Adds all words in given index as $word => $freq to $cloud array
      */
-    function _addWordsToCloud(&$cloud, $idx, $word_idx, &$stopwords) {
+    function _addWordsToCloud(&$cloud, $idx, $word_idx) {
         $wcount = count($word_idx);
 
         // collect the frequency of the words
         for ($i = 0; $i < $wcount; $i++) {
             $key = trim($word_idx[$i]);
-            if (!is_int(array_search($key, $stopwords))) {
-                $value = explode(':', $idx[$i]);
-                if (!trim($value[0])) continue;
-                $cloud[$key] = count($value);
-            }
+            $value = explode(':', $idx[$i]);
+            if (!trim($value[0])) continue;
+            $cloud[$key] = count($value);
         }
     }
 
