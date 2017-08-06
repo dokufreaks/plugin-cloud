@@ -63,9 +63,9 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         if (!is_numeric($num)) $num = 50;
         if(!is_null($ns)) $namespaces = explode('|', $ns);
         else $namespaces = null;
-        
+
         return array($type, $num, $namespaces, $flags);
-    }            
+    }
 
     function render($mode, Doku_Renderer $renderer, $data) {
         global $conf;
@@ -157,11 +157,11 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
 
     /**
      * Helper function for loading and returning the array with stopwords.
-     * 
+     *
      * Stopwords files are loaded from two locations:
      * - inc/lang/"actual language"/stopwords.txt
      * - conf/stopwords.txt
-     * 
+     *
      * If both files exists, then both files are used - the content is merged.
      */
     protected function _getStopwords() {
@@ -173,7 +173,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         // load extra local stopwords
         $swfile = DOKU_CONF.'stopwords.txt';
         if (@file_exists($swfile)) $stopwords = array_merge($stopwords, file($swfile, FILE_IGNORE_NEW_LINES));
-        
+
         if (count($stopwords) == 0) {
             return null;
         }
@@ -195,9 +195,12 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         }
 
         // Remove stopwords
-        foreach ($this->stopwords as $word) {
-            if (isset($cloud[$word]))
-                unset($cloud[$word]);
+        if ($this->stopwords != null)
+        {
+            foreach ($this->stopwords as $word) {
+                if (isset($cloud[$word]))
+                    unset($cloud[$word]);
+            }
         }
 
         // Remove word which are on the blacklist
@@ -286,4 +289,4 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         return $cloud[0];
     }
 }
-// vim:ts=4:sw=4:et: 
+// vim:ts=4:sw=4:et:
