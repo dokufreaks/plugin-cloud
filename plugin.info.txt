@@ -2,7 +2,7 @@
 base   cloud
 author Michael Hamann, Michael Klier, Gina Haeussge
 email  michael@content-space.de
-date   2017-08-05
+date   2019-02-15
 name   Cloud Plugin
 desc   Displays the most used words in a word cloud.
 url    http://www.dokuwiki.org/plugin:cloud
