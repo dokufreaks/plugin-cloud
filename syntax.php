@@ -77,20 +77,9 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
                     return false;
                 }
                 $cloud = $this->getTagCloud($num, $min, $max, $namespaces, $tag);
-            } elseif($type == 'search') {
-                /** @var helper_plugin_searchstats $helper */
-                $helper = plugin_load('helper', 'searchstats');
-                if ($helper) {
-                    $cloud = $helper->getSearchWordArray($num);
-                    $this->filterCloud($cloud, 'search_blacklist');
-                    // calculate min/max values
-                    $min = PHP_INT_MAX;
-                    $max = 0;
-                    foreach ($cloud as $size) {
-                        $min = min($size, $min);
-                        $max = max($size, $max);
-                    }
-                } else {
+            } elseif ($type == 'search') {
+                $cloud = $this->getSearchCloud($num, $min, $max);
+                if ($cloud === false) {
                     msg('You have to install the searchstats plugin to use this feature.', -1);
                     return false;
                 }
@@ -262,6 +251,32 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
         $this->filterCloud($cloud, 'tag_blacklist');
 
         return $this->sortCloud($cloud, $num, $min, $max);
+    }
+
+    /**
+     * Returns the search cloud array
+     *
+     * @return array|false
+     */
+    protected function getSearchCloud($num, &$min, &$max)
+    {
+        if (!plugin_isdisabled('searchstats')) {
+            /** @var helper_plugin_searchstats $helper */
+            $helper = plugin_load('helper', 'searchstats');
+            $cloud = $helper->getSearchWordArray($num);
+            $this->filterCloud($cloud, 'search_blacklist');
+        } else {
+            return false;
+        }
+
+        // calculate min/max values
+        $min = PHP_INT_MAX;
+        $max = 0;
+        foreach ($cloud as $size) {
+            $min = min($size, $min);
+            $max = max($size, $max);
+        }
+        return $cloud;
     }
 
     /**
