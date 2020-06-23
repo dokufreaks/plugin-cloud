@@ -71,12 +71,11 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
         if ($format == 'xhtml') {
 
             if ($type == 'tag') { // we need the tag helper plugin
-                /** @var helper_plugin_tag $tag */
-                if (plugin_isdisabled('tag') || (!$tag = plugin_load('helper', 'tag'))) {
+                $cloud = $this->getTagCloud($num, $min, $max, $namespaces);                
+                if ($cloud === false) {
                     msg('The Tag Plugin must be installed to display tag clouds.', -1);
                     return false;
                 }
-                $cloud = $this->getTagCloud($num, $min, $max, $namespaces, $tag);
             } elseif ($type == 'search') {
                 $cloud = $this->getSearchCloud($num, $min, $max);
                 if ($cloud === false) {
@@ -102,7 +101,10 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
                 else $class = 'cloud5';
 
                 $name = $word;
-                if ($type == 'tag' && isset($tag)) {
+                if ($type == 'tag') {
+                    /** @var helper_plugin_tag $tag */
+                    $tag = plugin_load('helper', 'tag');
+
                     $id = $word;
                     $exists = false;
                     resolve_pageID($tag->namespace, $id, $exists);
@@ -244,12 +246,16 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
     /**
      * Returns the sorted tag cloud array
      */
-    protected function getTagCloud($num, &$min, &$max, $namespaces = NULL, helper_plugin_tag &$tag)
+    protected function getTagCloud($num, &$min, &$max, $namespaces = null)
     {
-        $cloud = $tag->tagOccurrences(NULL, $namespaces, true, $this->getConf('list_tags_of_subns'));
-
-        $this->filterCloud($cloud, 'tag_blacklist');
-
+        if (!plugin_isdisabled('tag')) {
+            /** @var helper_plugin_tag $tag */
+            $tag = plugin_load('helper', 'tag');
+            $cloud = $tag->tagOccurrences(null, $namespaces, true, $this->getConf('list_tags_of_subns'));
+            $this->filterCloud($cloud, 'tag_blacklist');
+        } else {
+            return false;
+        }
         return $this->sortCloud($cloud, $num, $min, $max);
     }
 
