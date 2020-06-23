@@ -67,77 +67,78 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
     {
         global $conf;
 
-        list($type, $num, $namespaces, $flags) = $data;
-        if ($format == 'xhtml') {
+        if (!in_array($format, ['xhtml'])) return false;
 
-            if ($type == 'tag') { // we need the tag helper plugin
+        list($type, $num, $namespaces, $flags) = $data;
+        switch ($type) {
+            case 'tag':    // require tag plugin
                 $cloud = $this->getTagCloud($num, $min, $max, $namespaces);                
                 if ($cloud === false) {
                     msg('The Tag Plugin must be installed to display tag clouds.', -1);
                     return false;
                 }
-            } elseif ($type == 'search') {
+                break;
+            case 'search': // require searchstats plugin
                 $cloud = $this->getSearchCloud($num, $min, $max);
                 if ($cloud === false) {
                     msg('You have to install the searchstats plugin to use this feature.', -1);
                     return false;
                 }
-            } else {
+                break;
+            default:
                 $cloud = $this->getWordCloud($num, $min, $max);
-            }
-            if (!is_array($cloud) || empty($cloud)) return false;
-            $delta = ($max - $min) / 16;
-
-            // prevent caching to ensure the included pages are always fresh
-            $renderer->info['cache'] = false;
-
-            // and render the cloud
-            $renderer->doc .= '<div class="cloud">'.DOKU_LF;
-            foreach ($cloud as $word => $size) {
-                if ($size < $min + round($delta)) $class = 'cloud1';
-                elseif ($size < $min + round(2*$delta)) $class = 'cloud2';
-                elseif ($size < $min + round(4*$delta)) $class = 'cloud3';
-                elseif ($size < $min + round(8*$delta)) $class = 'cloud4';
-                else $class = 'cloud5';
-
-                $name = $word;
-                if ($type == 'tag') {
-                    /** @var helper_plugin_tag $tag */
-                    $tag = plugin_load('helper', 'tag');
-
-                    $id = $word;
-                    $exists = false;
-                    resolve_pageID($tag->namespace, $id, $exists);
-                    if ($exists) {
-                        $link = wl($id);
-                        if ($conf['useheading']) {
-                            $name = p_get_first_heading($id, false) ?: $word;
-                        }
-                    } else {
-                        $link = wl($id, array('do'=>'showtag', 'tag'=>$word));
-                    }
-                    $title = $word;
-                    $class .= ($exists ? '_tag1' : '_tag2');
-                } else {
-                    if ($conf['userewrite'] == 2) {
-                        $link = wl($word, array('do'=>'search', 'id'=>$word));
-                        $title = $size;
-                    } else {
-                        $link = wl($word, 'do=search');
-                        $title = $size;
-                    }
-                }
-
-                if ($flags['showCount'] === true) {
-                    $name .= '('.$size.')';
-                }
-                $renderer->doc .= DOKU_TAB . '<a href="' . $link . '" class="' . $class .'"'
-                               .' title="' . $title . '">' . hsc($name) . '</a>' . DOKU_LF;
-            }
-            $renderer->doc .= '</div>' . DOKU_LF;
-            return true;
         }
-        return false;
+        if (!is_array($cloud) || empty($cloud)) return false;
+        $delta = ($max - $min) / 16;
+
+        // prevent caching to ensure the included pages are always fresh
+        $renderer->info['cache'] = false;
+
+        // and render the cloud
+        $renderer->doc .= '<div class="cloud">'.DOKU_LF;
+        foreach ($cloud as $word => $size) {
+            if ($size < $min + round($delta)) $class = 'cloud1';
+            elseif ($size < $min + round(2*$delta)) $class = 'cloud2';
+            elseif ($size < $min + round(4*$delta)) $class = 'cloud3';
+            elseif ($size < $min + round(8*$delta)) $class = 'cloud4';
+            else $class = 'cloud5';
+
+            $name = $word;
+            if ($type == 'tag') {
+                /** @var helper_plugin_tag $tag */
+                isset($tag) || $tag = plugin_load('helper', 'tag');
+
+                $id = $word;
+                $exists = false;
+                resolve_pageID($tag->namespace, $id, $exists);
+                if ($exists) {
+                    $link = wl($id);
+                    if ($conf['useheading']) {
+                        $name = p_get_first_heading($id, false) ?: $word;
+                    }
+                } else {
+                    $link = wl($id, array('do'=>'showtag', 'tag'=>$word));
+                }
+                $title = $word;
+                $class .= ($exists ? '_tag1' : '_tag2');
+            } else {
+                if ($conf['userewrite'] == 2) {
+                    $link = wl($word, array('do'=>'search', 'id'=>$word));
+                    $title = $size;
+                } else {
+                    $link = wl($word, 'do=search');
+                    $title = $size;
+                }
+            }
+
+            if ($flags['showCount'] === true) {
+                $name .= '('.$size.')';
+            }
+            $renderer->doc .= DOKU_TAB . '<a href="' . $link . '" class="' . $class .'"'
+                           .' title="' . $title . '">' . hsc($name) . '</a>' . DOKU_LF;
+        }
+        $renderer->doc .= '</div>' . DOKU_LF;
+        return true;
     }
 
     /**
