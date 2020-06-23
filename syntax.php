@@ -11,13 +11,6 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
     protected $knownFlags = array('showCount');
     protected $stopwords = null;
 
-    /**
-     * Constructor. Loads stopwords.
-     */
-    public function __construct() {
-        $this->stopwords = $this->getStopwords();
-    }
-
     public function getType() { return 'substition'; }
     public function getPType() { return 'block'; }
     public function getSort() { return 98; }
@@ -167,20 +160,20 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
      */
     protected function getStopwords()
     {
-        // load stopwords
-        $swfile   = DOKU_INC.'inc/lang/'.$conf['lang'].'/stopwords.txt';
-        if (@file_exists($swfile)) $stopwords = file($swfile, FILE_IGNORE_NEW_LINES);
-        else $stopwords = array();
+        if ($this->stopwords === null) {
+            // load DokuWiki stopwords
+            $this->stopwords = idx_get_stopwords();
 
-        // load extra local stopwords
-        $swfile = DOKU_CONF.'stopwords.txt';
-        if (@file_exists($swfile)) $stopwords = array_merge($stopwords, file($swfile, FILE_IGNORE_NEW_LINES));
-
-        if (count($stopwords) == 0) {
-            return null;
+            // load extra local stopwords
+            $swfile = DOKU_CONF.'stopwords.txt';
+            if (file_exists($swfile)) {
+                $this->stopwords = array_merge(
+                        $this->stopwords,
+                        file($swfile, FILE_IGNORE_NEW_LINES)
+                );
+            }
         }
-
-        return $stopwords;
+        return $this->stopwords;
     }
 
     /**
@@ -198,18 +191,16 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
         }
 
         // Remove stopwords
-        if ($this->stopwords != null) {
-            foreach ($this->stopwords as $word) {
-                if (isset($cloud[$word]))
-                    unset($cloud[$word]);
-            }
+        foreach ($this->getStopwords() as $word) {
+            if (isset($cloud[$word]))
+                unset($cloud[$word]);
         }
 
         // Remove word which are on the blacklist
         $blacklist = $this->getConf($balcklistName);
         if (!empty($blacklist)) {
             $blacklist = explode(',', $blacklist);
-            $blacklist = str_replace(' ', '', $blacklist);	// remove spaces
+            $blacklist = str_replace(' ', '', $blacklist); // remove spaces
 
             foreach ($blacklist as $word) {
                 if (isset($cloud[$word]))
