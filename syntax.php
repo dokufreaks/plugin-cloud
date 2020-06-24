@@ -1,5 +1,8 @@
 <?php
 
+use dokuwiki\Search\FulltextIndex;
+use dokuwiki\Search\Tokenizer;
+
 /**
  * Cloud Plugin: shows a cloud of the most frequently used words
  *
@@ -154,7 +157,11 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
     {
         if ($this->stopwords === null) {
             // load DokuWiki stopwords
-            $this->stopwords = idx_get_stopwords();
+            if (is_callable('dokuwiki\Search\Tokenizer::getInstance')) {
+                $this->stopwords = Tokenizer::getInstance()->getStopwords();
+            } else {
+                $this->stopwords = idx_get_stopwords();
+            }
 
             // load extra local stopwords
             $swfile = DOKU_CONF.'stopwords.txt';
@@ -210,17 +217,17 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
 
         $cloud = array();
 
-        if (@file_exists($conf['indexdir'].'/page.idx')) { // new word-length based index
+        if (is_callable('dokuwiki\Search\FulltextIndex::getInstance')) {
+            $FulltextIndex = FulltextIndex::getInstance();
+            $lengths = $FulltextIndex->getIndexLengths(0);
+            $funcGetIndex = array($FulltextIndex, 'getIndex');
+        } else {
             $lengths = idx_indexLengths(0);
-            foreach ($lengths as $len) {
-                $idx      = idx_getIndex('i', $len);
-                $word_idx = idx_getIndex('w', $len);
-                $this->addWordsToCloud($cloud, $idx, $word_idx);
-            }
-        } else {                                          // old index
-            $idx      = file($conf['cachedir'].'/index.idx');
-            $word_idx = file($conf['cachedir'].'/word.idx');
-            $this->addWordsToCloud($cloud, $idx, $word_idx);
+            $funcGetIndex = 'idx_getIndex';
+        }
+
+        foreach ($lengths as $len) {
+            $this->addWordsToCloud($cloud, $funcGetIndex('i', $len), $funcGetIndex('w', $len));
         }
 
         $this->filterCloud($cloud, 'word_blacklist');
