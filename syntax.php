@@ -198,9 +198,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
         // Remove word which are on the blacklist
         $blacklist = $this->getConf($balcklistName);
         if (!empty($blacklist)) {
-            $blacklist = explode(',', $blacklist);
-            $blacklist = str_replace(' ', '', $blacklist); // remove spaces
-
+            $blacklist = array_map('trim', explode(',', $blacklist));
             foreach ($blacklist as $word) {
                 if (isset($cloud[$word]))
                     unset($cloud[$word]);
