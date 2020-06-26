@@ -75,7 +75,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
         list($type, $num, $namespaces, $flags) = $data;
         switch ($type) {
             case 'tag':    // require tag plugin
-                $cloud = $this->getTagCloud($num, $min, $max, $namespaces);                
+                $cloud = $this->getTagCloud($num, $min, $max, $namespaces);
                 if ($cloud === false) {
                     msg('The Tag Plugin must be installed to display tag clouds.', -1);
                     return false;
@@ -109,7 +109,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
             $name = $word;
             if ($type == 'tag') {
                 /** @var helper_plugin_tag $tag */
-                isset($tag) || $tag = plugin_load('helper', 'tag');
+                isset($tag) || $tag = $this->loadHelper('tag', true);
 
                 $id = $word;
                 $exists = false;
@@ -258,7 +258,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
     {
         if (!plugin_isdisabled('tag')) {
             /** @var helper_plugin_tag $tag */
-            $tag = plugin_load('helper', 'tag');
+            $tag = $this->loadHelper('tag', true);
             $cloud = $tag->tagOccurrences(null, $namespaces, true, $this->getConf('list_tags_of_subns'));
             $this->filterCloud($cloud, 'tag_blacklist');
         } else {
@@ -276,7 +276,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
     {
         if (!plugin_isdisabled('searchstats')) {
             /** @var helper_plugin_searchstats $helper */
-            $helper = plugin_load('helper', 'searchstats');
+            $helper = $this->loadHelper('searchstats', true);
             $cloud = $helper->getSearchWordArray($num);
             $this->filterCloud($cloud, 'search_blacklist');
         } else {
