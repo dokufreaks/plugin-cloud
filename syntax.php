@@ -2,6 +2,7 @@
 
 use dokuwiki\Search\FulltextIndex;
 use dokuwiki\Search\Tokenizer;
+use dokuwiki\Utf8;
 
 /**
  * Cloud Plugin: shows a cloud of the most frequently used words
@@ -184,15 +185,19 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
     {
         // Remove short words
         $min = $this->getConf('minimum_word_length');
-        foreach ($cloud as $key => $count) {
-            if (iconv_strlen($key) < $min)
-                unset($cloud[$key]);
+        if (is_callable('dokuwiki\Utf8\PhpString::strlen')) {
+            foreach ($cloud as $key => $count) {
+                if (Utf8\PhpString::strlen($key) < $min) unset($cloud[$key]);
+            }
+        } else {
+            foreach ($cloud as $key => $count) {
+                if (utf8_strlen($key) < $min) unset($cloud[$key]);
+            }
         }
 
         // Remove stopwords
         foreach ($this->getStopwords() as $word) {
-            if (isset($cloud[$word]))
-                unset($cloud[$word]);
+            if (isset($cloud[$word])) unset($cloud[$word]);
         }
 
         // Remove word which are on the blacklist
@@ -200,8 +205,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
         if (!empty($blacklist)) {
             $blacklist = array_map('trim', explode(',', $blacklist));
             foreach ($blacklist as $word) {
-                if (isset($cloud[$word]))
-                    unset($cloud[$word]);
+                if (isset($cloud[$word])) unset($cloud[$word]);
             }
         }
     }
