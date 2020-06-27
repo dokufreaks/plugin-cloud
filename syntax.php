@@ -34,32 +34,30 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
     {
         $match = substr($match, 2, -2); // strip markup
 
-        if (substr($match, 0, 3) == 'TAG') {
+        list($prefix, $params) = explode('CLOUD', $match, 2);
+        if ($prefix === '') {
+            $type = 'word';
+        } elseif ($prefix === 'TAG') {
             $type = 'tag';
-        } elseif (substr($match, 0, 6) == 'SEARCH') {
+        } elseif ($prefix === 'SEARCH') {
             $type = 'search';
         } else {
-            $type = 'word';
+            return false;
         }
 
-        list($num, $ns) = explode('>', $match, 2);
-        list($junk, $num) = explode(':', $num, 2);
-        $flags = null;
-        if (preg_match ('/\[.*\]/', $junk, $flags) === 1) {
-            $flags = trim ($flags[0], '[]');
-            $found = explode(',', $flags);
-            $flags = array();
-            foreach ($found as $flag) {
-                if (in_array($flag, $this->knownFlags)) {
-                    // Actually we just set flags as present
-                    // Later we might add values to flags like key=value pairs
-                    $flags[$flag] = true;
-                }
-            }
-        }
+        list($params, $ns) = explode('>', $params, 2);
+        $namespaces = isset($ns) ? array_map('trim', explode('|', $ns)) : array();
+ 
+        list($options, $num) = explode(':', $params, 2);
+        $num = (isset($num) && is_numeric($num)) ? ($num + 0) : 50;
 
-        if (!is_numeric($num)) $num = 50;
-        $namespaces = is_null($ns) ? null : explode('|', $ns);
+        $flags = array();
+        $found = array_map('trim', explode(',', substr($options, 1, -1)));
+        foreach ($found as $flag) {
+            // Actually we just set flags as present
+            // Later we might add values to flags like key=value pairs
+            $flags[$flag] = true;
+        }
 
         return array($type, $num, $namespaces, $flags);
     }
@@ -93,13 +91,13 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
                 $cloud = $this->getWordCloud($num, $min, $max);
         }
         if (!is_array($cloud) || empty($cloud)) return false;
-        $delta = ($max - $min) / 16;
 
         // prevent caching to ensure the included pages are always fresh
         $renderer->info['cache'] = false;
 
         // and render the cloud
         $renderer->doc .= '<div class="cloud">'.DOKU_LF;
+        $delta = ($max - $min) / 16;
         foreach ($cloud as $word => $size) {
             if ($size < $min + round($delta)) $class = 'cloud1';
             elseif ($size < $min + round(2*$delta)) $class = 'cloud2';
@@ -135,13 +133,13 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
                 }
             }
 
-            if ($flags['showCount'] === true) {
+            if (array_key_exists('showCount', $flags) && $flags['showCount'] === true) {
                 $name .= '('.$size.')';
             }
             $renderer->doc .= DOKU_TAB . '<a href="' . $link . '" class="' . $class .'"'
                            .' title="' . $title . '">' . hsc($name) . '</a>' . DOKU_LF;
         }
-        $renderer->doc .= '</div>' . DOKU_LF;
+        $renderer->doc .= '</div>'.DOKU_LF;
         return true;
     }
 
