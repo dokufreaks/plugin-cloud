@@ -104,7 +104,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
             $delta = ($max-$min)/16;
 
             // prevent caching to ensure the included pages are always fresh
-            $renderer->info['cache'] = false;
+            $renderer->nocache();
 
             // and render the cloud
             $renderer->doc .= '<div class="cloud">'.DOKU_LF;
