@@ -93,7 +93,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
         if (!is_array($cloud) || empty($cloud)) return false;
 
         // prevent caching to ensure the included pages are always fresh
-        $renderer->info['cache'] = false;
+        $renderer->nocache();
 
         // and render the cloud
         $renderer->doc .= '<div class="cloud">'.DOKU_LF;
