@@ -12,4 +12,4 @@ $meta['word_blacklist']         = array('string');
 $meta['tag_blacklist']          = array('string');
 $meta['list_tags_of_subns']     = array('onoff');
 
-//Setup VIM: ex: et ts=2 :
+//Setup VIM: ex: et ts=4 enc=utf-8 :
