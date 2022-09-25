@@ -135,7 +135,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                     }
                 }
 
-                if ($flags ['showCount'] === true) {
+                if (($flags['showCount'] ?? false) === true) {
                     $name .= '('.$size.')';
                 }
                 $renderer->doc .= DOKU_TAB . '<a href="' . $link . '" class="' . $class .'"'
