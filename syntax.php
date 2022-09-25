@@ -157,6 +157,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
      * If both files exists, then both files are used - the content is merged.
      */
     protected function _getStopwords() {
+        global $conf;
         // load stopwords
         $swfile   = DOKU_INC.'inc/lang/'.$conf['lang'].'/stopwords.txt';
         if (@file_exists($swfile)) $stopwords = file($swfile, FILE_IGNORE_NEW_LINES);
