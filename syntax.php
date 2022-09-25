@@ -42,7 +42,10 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         list($junk, $num) = explode(':', $num . ':', 2);
         $num = rtrim($num, ':');
 
-        $flags = null;
+        // Set default flag values
+        $flags = [
+            'showCount' => false
+        ];
         if (preg_match ('/\[.*\]/', $junk, $flags) === 1) {
             $flags = trim ($flags [0], '[]');
             $found = explode(',', $flags);
