@@ -36,8 +36,12 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
             $type = 'word';
         }
 
-        list($num, $ns) = explode('>', $match, 2);
-        list($junk, $num) = explode(':', $num, 2);
+        // Add trailing separator to ensure we always have 2 entries in the array
+        list($num, $ns) = explode('>', $match . '>', 2);
+        $ns = rtrim($ns, '>');
+        list($junk, $num) = explode(':', $num . ':', 2);
+        $num = rtrim($num, ':');
+
         $flags = null;
         if (preg_match ('/\[.*\]/', $junk, $flags) === 1) {
             $flags = trim ($flags [0], '[]');
