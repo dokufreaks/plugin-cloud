@@ -37,8 +37,8 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         }
 
         // Ensure we always have 2 entries in the exploded array
-        list($num, $ns) = array_pad(explode('>', $match . '>', 2), 2, '');
-        list($junk, $num) = array_pad(explode(':', $num . ':', 2), 2, '');
+        list($num, $ns) = array_pad(explode('>', $match, 2), 2, '');
+        list($junk, $num) = array_pad(explode(':', $num, 2), 2, '');
 
         if (preg_match ('/\[.*\]/', $junk, $flags) === 1) {
             $flags = trim ($flags [0], '[]');
