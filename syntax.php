@@ -36,11 +36,9 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
             $type = 'word';
         }
 
-        // Add trailing separator to ensure we always have 2 entries in the array
-        list($num, $ns) = explode('>', $match . '>', 2);
-        $ns = rtrim($ns, '>');
-        list($junk, $num) = explode(':', $num . ':', 2);
-        $num = rtrim($num, ':');
+        // Ensure we always have 2 entries in the exploded array
+        list($num, $ns) = array_pad(explode('>', $match . '>', 2), 2, '');
+        list($junk, $num) = array_pad(explode(':', $num . ':', 2), 2, '');
 
         // Set default flag values
         $flags = [
