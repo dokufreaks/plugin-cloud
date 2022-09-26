@@ -43,7 +43,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         $flags = [
             'showCount' => false,
         ];
-        if (preg_match('/\[.*\]/', $junk, $matches) === 1) {
+        if (preg_match('/\[.*]/', $junk, $matches) === 1) {
             $matches = trim($matches[0], '[]');
             $found = explode(',', $matches);
             $flags = array();
@@ -63,11 +63,11 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         return array($type, $num, $namespaces, $flags);
     }
 
-    function render($mode, Doku_Renderer $renderer, $data) {
+    function render($format, Doku_Renderer $renderer, $data) {
         global $conf;
 
         list($type, $num, $namespaces, $flags) = $data;
-        if ($mode == 'xhtml') {
+        if ($format == 'xhtml') {
 
             if ($type == 'tag') { // we need the tag helper plugin
                 /** @var helper_plugin_tag $tag */
@@ -132,11 +132,10 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                 } else {
                     if($conf['userewrite'] == 2) {
                         $link = wl($word, array('do'=>'search', 'id'=>$word));
-                        $title = $size;
                     } else {
                         $link = wl($word, 'do=search');
-                        $title = $size;
                     }
+                    $title = $size;
                 }
 
                 if ($flags['showCount']) {
@@ -262,8 +261,8 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     /**
      * Returns the sorted tag cloud array
      */
-    function _getTagCloud($num, &$min, &$max, $namespaces = NULL, helper_plugin_tag &$tag) {
-        $cloud = $tag->tagOccurrences(NULL, $namespaces, true, $this->getConf('list_tags_of_subns'));
+    function _getTagCloud($num, &$min, &$max, $namespaces, helper_plugin_tag $tag) {
+        $cloud = $tag->tagOccurrences([], $namespaces, true, $this->getConf('list_tags_of_subns'));
 
         $this->_filterCloud($cloud, 'tag_blacklist');
 
