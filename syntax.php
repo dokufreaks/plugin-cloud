@@ -40,9 +40,12 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         list($num, $ns) = array_pad(explode('>', $match, 2), 2, '');
         list($junk, $num) = array_pad(explode(':', $num, 2), 2, '');
 
-        if (preg_match ('/\[.*\]/', $junk, $flags) === 1) {
-            $flags = trim ($flags [0], '[]');
-            $found = explode(',', $flags);
+        $flags = [
+            'showCount' => false,
+        ];
+        if (preg_match('/\[.*\]/', $junk, $matches) === 1) {
+            $matches = trim($matches[0], '[]');
+            $found = explode(',', $matches);
             $flags = array();
             foreach ($found as $flag) {
                 if (in_array($flag, $this->knownFlags)) {
@@ -51,12 +54,6 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                     $flags [$flag] = true;
                 }
             }
-        }
-        // Set default flag values
-        if (!$flags) {
-            $flags = [
-                'showCount' => false,
-            ];
         }
 
         if (!is_numeric($num)) $num = 50;
