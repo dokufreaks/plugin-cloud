@@ -36,12 +36,16 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
             $type = 'word';
         }
 
-        list($num, $ns) = explode('>', $match, 2);
-        list($junk, $num) = explode(':', $num, 2);
-        $flags = null;
-        if (preg_match ('/\[.*\]/', $junk, $flags) === 1) {
-            $flags = trim ($flags [0], '[]');
-            $found = explode(',', $flags);
+        // Ensure we always have 2 entries in the exploded array
+        list($num, $ns) = array_pad(explode('>', $match, 2), 2, '');
+        list($junk, $num) = array_pad(explode(':', $num, 2), 2, '');
+
+        $flags = [
+            'showCount' => false,
+        ];
+        if (preg_match('/\[.*\]/', $junk, $matches) === 1) {
+            $matches = trim($matches[0], '[]');
+            $found = explode(',', $matches);
             $flags = array();
             foreach ($found as $flag) {
                 if (in_array($flag, $this->knownFlags)) {
@@ -135,7 +139,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
                     }
                 }
 
-                if ($flags ['showCount'] === true) {
+                if ($flags['showCount']) {
                     $name .= '('.$size.')';
                 }
                 $renderer->doc .= DOKU_TAB . '<a href="' . $link . '" class="' . $class .'"'
@@ -157,6 +161,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
      * If both files exists, then both files are used - the content is merged.
      */
     protected function _getStopwords() {
+        global $conf;
         // load stopwords
         $swfile   = DOKU_INC.'inc/lang/'.$conf['lang'].'/stopwords.txt';
         if (@file_exists($swfile)) $stopwords = file($swfile, FILE_IGNORE_NEW_LINES);
