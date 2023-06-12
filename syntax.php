@@ -6,6 +6,8 @@
  * @author     Esther Brunner <wikidesign@gmail.com>
  */
 
+use dokuwiki\File\PageResolver;
+
 class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     protected $knownFlags = array('showCount');
     protected $stopwords = null;
@@ -43,7 +45,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         $flags = [
             'showCount' => false,
         ];
-        if (preg_match('/\[.*\]/', $junk, $matches) === 1) {
+        if (preg_match('/\[.*]/', $junk, $matches) === 1) {
             $matches = trim($matches[0], '[]');
             $found = explode(',', $matches);
             $flags = array();
@@ -63,11 +65,11 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
         return array($type, $num, $namespaces, $flags);
     }
 
-    function render($mode, Doku_Renderer $renderer, $data) {
+    function render($format, Doku_Renderer $renderer, $data) {
         global $conf;
 
         list($type, $num, $namespaces, $flags) = $data;
-        if ($mode == 'xhtml') {
+        if ($format == 'xhtml') {
 
             if ($type == 'tag') { // we need the tag helper plugin
                 /** @var helper_plugin_tag $tag */
@@ -113,30 +115,38 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
 
                 $name = $word;
                 if ($type == 'tag' && isset($tag)) {
-                    $id = $word;
-                    $exists = false;
-                    resolve_pageID($tag->namespace, $id, $exists);
+                    if (class_exists('dokuwiki\File\PageResolver')) {
+                        // Compatibility with tag plugin < 2022-09-30
+                        $ns = method_exists($tag, 'getNamespace') ? $tag->getNamespace() : $tag->namespace;
+                        $resolver = new PageResolver($ns . ':');
+                        $page = $resolver->resolveId($word);
+                        $exists = page_exists($page);
+                    } else {
+                        // Compatibility with Hogfather and older
+                        $page = $word;
+                        resolve_pageid($tag->namespace, $page, $exists);
+                    }
                     if($exists) {
-                        $link = wl($id);
+                        $link = wl($page);
                         if($conf['useheading']) {
-                            $name = p_get_first_heading($id, false);
+                            $name = p_get_first_heading($page, false);
                             if (empty($name)) {
                                 $name = $word;
                             }
                         }
+                        $class .= '_tag1';
                     } else {
-                        $link = wl($id, array('do'=>'showtag', 'tag'=>$word));
+                        $link = wl($word, array('do'=>'showtag', 'tag'=>$word));
+                        $class .= '_tag2';
                     }
                     $title = $word;
-                    $class .= ($exists ? '_tag1' : '_tag2');
                 } else {
                     if($conf['userewrite'] == 2) {
                         $link = wl($word, array('do'=>'search', 'id'=>$word));
-                        $title = $size;
                     } else {
                         $link = wl($word, 'do=search');
-                        $title = $size;
                     }
+                    $title = $size;
                 }
 
                 if ($flags['showCount']) {
@@ -262,8 +272,8 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin {
     /**
      * Returns the sorted tag cloud array
      */
-    function _getTagCloud($num, &$min, &$max, $namespaces = NULL, helper_plugin_tag &$tag) {
-        $cloud = $tag->tagOccurrences(NULL, $namespaces, true, $this->getConf('list_tags_of_subns'));
+    function _getTagCloud($num, &$min, &$max, $namespaces, helper_plugin_tag $tag) {
+        $cloud = $tag->tagOccurrences([], $namespaces, true, $this->getConf('list_tags_of_subns'));
 
         $this->_filterCloud($cloud, 'tag_blacklist');
 
