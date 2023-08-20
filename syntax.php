@@ -1,5 +1,6 @@
 <?php
 
+use dokuwiki\File\PageResolver;
 use dokuwiki\Search\FulltextIndex;
 use dokuwiki\Search\Tokenizer;
 use dokuwiki\Utf8;
@@ -47,7 +48,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
 
         list($params, $ns) = explode('>', $params, 2);
         $namespaces = isset($ns) ? array_map('trim', explode('|', $ns)) : array();
- 
+
         list($options, $num) = explode(':', $params, 2);
         $num = (isset($num) && is_numeric($num)) ? ($num + 0) : 50;
 
@@ -110,13 +111,26 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
                 /** @var helper_plugin_tag $tag */
                 isset($tag) || $tag = $this->loadHelper('tag', true);
 
-                $id = $word;
-                $exists = false;
-                resolve_pageID($tag->namespace, $id, $exists);
+                $ns = method_exists($tag, 'getNamespace') ? $tag->getNamespace() : $tag->namespace;
+                if (class_exists('dokuwiki\File\PageResolver')) {
+                    // Compatibility with tag plugin < 2022-09-30
+                    $resolver = new PageResolver($ns . ':');
+                    $id = $resolver->resolveId($word);
+                    $exists = page_exists($id);
+                } else {
+                    // Compatibility with Hogfather and older
+                    $id = $word;
+                    $exists = false;
+                    resolve_pageID($ns, $id, $exists);
+                }
+
                 if ($exists) {
                     $link = wl($id);
                     if ($conf['useheading']) {
-                        $name = p_get_first_heading($id, false) ?: $word;
+                        $name = p_get_first_heading($id, false);
+                        if (blank($name)) {
+                            $name = $word;
+                        }
                     }
                 } else {
                     $link = wl($id, array('do'=>'showtag', 'tag'=>$word));
@@ -126,11 +140,10 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
             } else {
                 if ($conf['userewrite'] == 2) {
                     $link = wl($word, array('do'=>'search', 'id'=>$word));
-                    $title = $size;
                 } else {
                     $link = wl($word, 'do=search');
-                    $title = $size;
                 }
+                $title = $size;
             }
 
             if (array_key_exists('showCount', $flags) && $flags['showCount'] === true) {
@@ -254,12 +267,12 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
     /**
      * Returns the sorted tag cloud array
      */
-    protected function getTagCloud($num, &$min, &$max, $namespaces = null)
+    protected function getTagCloud($num, &$min, &$max, $namespaces)
     {
         if (!plugin_isdisabled('tag')) {
             /** @var helper_plugin_tag $tag */
             $tag = $this->loadHelper('tag', true);
-            $cloud = $tag->tagOccurrences(null, $namespaces, true, $this->getConf('list_tags_of_subns'));
+            $cloud = $tag->tagOccurrences([], $namespaces, true, $this->getConf('list_tags_of_subns'));
             $this->filterCloud($cloud, 'tag_blacklist');
         } else {
             return false;
