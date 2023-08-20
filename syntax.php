@@ -1,8 +1,6 @@
 <?php
 
 use dokuwiki\File\PageResolver;
-use dokuwiki\Search\FulltextIndex;
-use dokuwiki\Search\Tokenizer;
 use dokuwiki\Utf8;
 
 /**
@@ -13,7 +11,6 @@ use dokuwiki\Utf8;
  */
 class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
 {
-    protected $knownFlags = array('showCount');
     protected $stopwords = null;
 
     public function getType() { return 'substition'; }
@@ -70,7 +67,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
     {
         global $conf;
 
-        if (!in_array($format, ['xhtml'])) return false;
+        if ($format != 'xhtml') return false;
 
         list($type, $num, $namespaces, $flags) = $data;
         switch ($type) {
@@ -170,7 +167,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
         if ($this->stopwords === null) {
             // load DokuWiki stopwords
             if (is_callable('dokuwiki\Search\Tokenizer::getInstance')) {
-                $this->stopwords = Tokenizer::getInstance()->getStopwords();
+                $this->stopwords = dokuwiki\Search\Tokenizer::getInstance()->getStopwords();
             } else {
                 $this->stopwords = idx_get_stopwords();
             }
@@ -226,12 +223,10 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
      */
     protected function getWordCloud($num, &$min, &$max)
     {
-        global $conf;
-
         $cloud = array();
 
         if (is_callable('dokuwiki\Search\FulltextIndex::getInstance')) {
-            $FulltextIndex = FulltextIndex::getInstance();
+            $FulltextIndex = dokuwiki\Search\FulltextIndex::getInstance();
             $lengths = $FulltextIndex->getIndexLengths(0);
             $funcGetIndex = array($FulltextIndex, 'getIndex');
         } else {
