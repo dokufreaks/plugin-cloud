@@ -201,7 +201,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
     /**
      * Applies filters on the cloud:
      * - removes all short words, see config option 'minimum_word_length'
-     * - removes all words in configured blacklist $balcklistName from $cloud array
+     * - removes all words in configured blacklist $blacklistName from $cloud array
      *
      * @param array $cloud array(word=>count)
      * @param string $blacklistName config setting name
