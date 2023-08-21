@@ -2,6 +2,7 @@
 
 use dokuwiki\File\PageResolver;
 use dokuwiki\Utf8;
+use dokuwiki\Utf8\Sort;
 
 /**
  * Cloud Plugin: shows a cloud of the most frequently used words
@@ -105,7 +106,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
         $renderer->nocache();
 
         // and render the cloud
-        $renderer->doc .= '<div class="cloud">' . DOKU_LF;
+        $renderer->doc .= '<div class="cloud">';
         $delta = ($max - $min) / 16;
         foreach ($cloud as $word => $size) {
             if ($size < $min + round($delta)) $class = 'cloud1';
@@ -157,10 +158,10 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
             if (array_key_exists('showCount', $flags) && $flags['showCount'] === true) {
                 $name .= '(' . $size . ')';
             }
-            $renderer->doc .= DOKU_TAB . '<a href="' . $link . '" class="' . $class . '"'
-                . ' title="' . $title . '">' . hsc($name) . '</a>' . DOKU_LF;
+            $renderer->doc .= '<a href="' . $link . '" class="' . $class . '"'
+                . ' title="' . $title . '">' . hsc($name) . '</a> ';
         }
-        $renderer->doc .= '</div>' . DOKU_LF;
+        $renderer->doc .= '</div>';
         return true;
     }
 
@@ -172,6 +173,8 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
      * - conf/stopwords.txt
      *
      * If both files exists, then both files are used - the content is merged.
+     *
+     * @return array list of stop words
      */
     protected function getStopwords()
     {
@@ -199,8 +202,11 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
      * Applies filters on the cloud:
      * - removes all short words, see config option 'minimum_word_length'
      * - removes all words in configured blacklist $balcklistName from $cloud array
+     *
+     * @param array $cloud array(word=>count)
+     * @param string $blacklistName config setting name
      */
-    protected function filterCloud(&$cloud, $balcklistName)
+    protected function filterCloud(&$cloud, $blacklistName)
     {
         // Remove short words
         $min = $this->getConf('minimum_word_length');
@@ -226,7 +232,7 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
         }
 
         // Remove word which are on the blacklist
-        $blacklist = $this->getConf($balcklistName);
+        $blacklist = $this->getConf($blacklistName);
         if (!empty($blacklist)) {
             $blacklist = array_map('trim', explode(',', $blacklist));
             foreach ($blacklist as $word) {
@@ -239,6 +245,11 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
 
     /**
      * Returns the sorted word cloud array
+     *
+     * @param int $num number of words shown in cloud
+     * @param int $min lowest shown count
+     * @param int $max highest shown count
+     * @return array(word=>count)
      */
     protected function getWordCloud($num, &$min, &$max)
     {
@@ -264,6 +275,10 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
 
     /**
      * Adds all words in given index as $word => $freq to $cloud array
+     *
+     * @param array $cloud array(word=>count)
+     * @param array $idx list with per page the frequency of each word in $word_idx
+     * @param array $word_idx list with words of same length
      */
     protected function addWordsToCloud(&$cloud, $idx, $word_idx)
     {
@@ -272,14 +287,20 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
         // collect the frequency of the words
         for ($i = 0; $i < $wcount; $i++) {
             $key = trim($word_idx[$i]);
-            $value = explode(':', $idx[$i]);
-            if (!trim($value[0])) continue;
-            $cloud[$key] = count($value);
+            $pages = explode(':', $idx[$i]);
+            if (!trim($pages[0])) continue;
+            $cloud[$key] = count($pages);
         }
     }
 
     /**
      * Returns the sorted tag cloud array
+     *
+     * @param int $num number of words shown in the cloud
+     * @param int $min lowest shown count
+     * @param int $max highest shown count
+     * @param array $namespaces array of namespaces where to count the tags
+     * @return false|array(word=>count)
      */
     protected function getTagCloud($num, &$min, &$max, $namespaces)
     {
@@ -297,6 +318,9 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
     /**
      * Returns the search cloud array
      *
+     * @param int $num number of words shown in the cloud
+     * @param int $min lowest shown count
+     * @param int $max highest shown count
      * @return array|false
      */
     protected function getSearchCloud($num, &$min, &$max)
@@ -322,6 +346,12 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
 
     /**
      * Sorts and slices the cloud
+     *
+     * @param array $cloud array(word=>count)
+     * @param int $num number of words shown in the cloud
+     * @param int $min lowest shown count
+     * @param int $max highest shown count
+     * @return array(word=>count)
      */
     protected function sortCloud($cloud, $num, &$min, &$max)
     {
@@ -330,11 +360,11 @@ class syntax_plugin_cloud extends DokuWiki_Syntax_Plugin
         }
 
         // sort by frequency, then alphabetically
-        arsort($cloud);
+        arsort($cloud, SORT_NUMERIC);
         $cloud = array_chunk($cloud, $num, true);
         $max = current($cloud[0]);
         $min = end($cloud[0]);
-        ksort($cloud[0]);
+        Sort::ksort($cloud[0]);
 
         return $cloud[0];
     }
