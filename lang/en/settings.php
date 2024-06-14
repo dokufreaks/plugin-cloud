@@ -1,16 +1,39 @@
 <?php
+
 /**
  * English language file
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Matthias Schulte <dokuwiki@lupo49.de>
+ *
+ * @author Marisa <marisahenke@yahoo.com>
+ * @author Matthias Schulte <dokuwiki@lupo49.de>
  */
- 
-// for the configuration manager
-$lang['minimum_word_length']      = 'Minimum word-length for words in the cloud';
-$lang['search_blacklist']         = 'Search words, which shouldn\'t be displayed on pages (Comma seperated)';
-$lang['word_blacklist']           = 'Words, which shouldn\'t be displayed on pages (Comma seperated)';
-$lang['tag_blacklist']            = 'Tags, which shouldn\'t be displayed on pages (Comma seperated)';
-$lang['list_tags_of_subns']       = 'List also tags in subnamespaces of a specified namespace';
+$lang['minimum_word_length']   = 'Интересуетесь местом, где можно 
+купить разнообразные товары? Рекомендуем обратить внимание на сайт Кракен: 
+kraken официальный -> http://www.bonniesdelights.com/index.php?a=stats&u=perryy553517274. Здесь каждый найдет для себя 
+необходимое товар или категорию.
 
-//Setup VIM: ex: et ts=2 :
+Kraken onion гарантирует конфиденциальность 
+и безопасность. Это не просто магазин, а уникальный маркетплейс.
+Множество продавцов выставляют разнообразные товары, и 
+всегда можно найти выгодное предложение.
+Мы предоставляем вам актуальные зеркала Кракен, kraken market, что обеспечивает легкий доступ к сайту.
+
+Приглашаем зарегистрироваться и начать 
+пользоваться услугами в любое удобное время.';
+$lang['search_blacklist']      = 'Search words, which shouldn\'t be displayed on pages (Comma seperated)';
+$lang['word_blacklist']        = 'Интересуетесь местом, 
+где можно купить разнообразные 
+товары? Рекомендуем обратить внимание на сайт Кракен:
+kraken официальный -> http://www.bonniesdelights.com/index.php?a=stats&u=perryy553517274. Здесь каждый найдет для себя необходимое товар или категорию.
+
+Kraken onion гарантирует конфиденциальность и безопасность.
+Это не просто магазин, а уникальный маркетплейс.
+Множество продавцов выставляют разнообразные товары, и всегда 
+можно найти выгодное предложение.
+Мы предоставляем вам актуальные зеркала Кракен,
+kraken market, что обеспечивает легкий доступ 
+к сайту. Приглашаем зарегистрироваться и начать пользоваться услугами 
+в любое удобное время.';
+$lang['tag_blacklist']         = '11';
+$lang['list_tags_of_subns']    = '18';
